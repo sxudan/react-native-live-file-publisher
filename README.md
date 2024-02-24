@@ -10,12 +10,30 @@ npm install react-native-live-file-publisher
 
 ## Usage
 
-```js
-import { multiply } from 'react-native-live-file-publisher';
+```typescript
+import {
+  PublisherProtocol,
+  useLiveFilePublisher,
+} from 'react-native-live-file-publisher';
 
 // ...
 
-const result = await multiply(3, 7);
+const { publishingState, publish, stop, log } = useLiveFilePublisher({
+    url: 'rtmp://192.168.1.100:1935',
+    mode: PublisherProtocol.RTMP,
+  });
+
+.
+.
+// publish
+timestamp: '00:00:00'
+filepath: local file path
+name: stream name
+try {
+    publish(<filepath>, <name>, <timestamp>);
+} catch (e) {
+    console.log(e);
+}
 ```
 
 ## Contributing
