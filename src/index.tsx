@@ -42,22 +42,21 @@ export const useLiveFilePublisher = ({ url, mode }: Props) => {
   var [data, setData] = useState<DataState | undefined>();
   const [stats, setStats] = useState<Statistics | undefined>();
 
-  const connect = useCallback((url: string, mode: PublisherProtocol) => {
+  const connect = useCallback((u: string, m: PublisherProtocol) => {
     /** Check if url is empty */
-    if (url === '') throw Error('url is empty');
+    if (u === '') throw Error('url is empty');
     /**  Check if url has right scheme */
-    if (mode === PublisherProtocol.RTMP && !url.includes('rtmp://')) {
+    if (m === PublisherProtocol.RTMP && !u.includes('rtmp://')) {
       throw Error('Invalid url. Please use rtmp://');
     } else if (
-      (mode === PublisherProtocol.RTSP_TCP ||
-        mode === PublisherProtocol.RTSP_UDP) &&
-      !url.includes('rtsp://')
+      (m === PublisherProtocol.RTSP_TCP || m === PublisherProtocol.RTSP_UDP) &&
+      !u.includes('rtsp://')
     ) {
       throw Error('Invalid url. Please use rtsp://');
     }
     setData({
-      baseUrl: url,
-      mode: mode,
+      baseUrl: u,
+      mode: m,
       filePath: undefined,
       name: undefined,
       startTime: undefined,
@@ -65,14 +64,14 @@ export const useLiveFilePublisher = ({ url, mode }: Props) => {
   }, []);
 
   useEffect(() => {
-    if (data == undefined) {
+    if (data === undefined) {
       connect(url, mode);
     }
   }, [url, mode, data, connect]);
 
   const notifyError = useCallback(
-    (error: string) => {
-      setError(error);
+    (err: string) => {
+      setError(err);
       setPublishingState(PublishingState.RequestStopPublish);
     },
     [setPublishingState]
@@ -133,12 +132,12 @@ export const useLiveFilePublisher = ({ url, mode }: Props) => {
               notifyError((await c.getOutput()) ?? '');
             }
           },
-          (log) => {
-            setLog(`${log.getMessage()}`);
+          (_log) => {
+            setLog(`${_log.getMessage()}`);
             // print(log.getMessage());
           },
-          (stats) => {
-            setStats(stats);
+          (_stats) => {
+            setStats(_stats);
           }
         );
       } catch (e) {
