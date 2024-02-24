@@ -68,8 +68,11 @@ There are some issues publishing iphone video which are in HEVC format. They nee
 
 ### Screenshots
 
+> Publishing with the example app
+<img width=300 src="./simulator.png" />
+
 > Playing in VLC player
-<img width=1000 src="./screenshot.png" />
+<img width=1000 src="./screenshot.png"/>
 
 ## Contributing
 
