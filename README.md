@@ -64,7 +64,7 @@ export enum PublishingState {
 
 ### Known issues
 
-There are some issues publishing iphone video which are in HEVC format. They need to be transcoded using iOS UIImagePicker compression or other compression techniques. Before publishing to the server, you need to shrink resolution to streaming video resolution (1280x720). By default, the package expo-image-picker does it for you. 
+There are some issues publishing iphone video which are in HEVC format. They need to be transcoded using iOS UIImagePicker compression or other compression techniques. Before publishing to the server, you need to shrink resolution to streaming video resolution (1280x720). By default, the package `expo-image-picker` does it for you. 
 
 ## Contributing
 
