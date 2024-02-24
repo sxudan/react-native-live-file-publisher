@@ -2,10 +2,18 @@
 
 This is a file publisher to publish the video file to RTSP or RTMP server.
 
+## Features
+- Publish video file streams to RTSP or RTMP servers.
+- Easy integration into your Flutter applications.
+
 ## Installation
 
 ```sh
 npm install react-native-live-file-publisher
+```
+or
+```sh
+yarn add react-native-live-file-publisher
 ```
 
 ## Usage
@@ -33,6 +41,22 @@ try {
     publish(<filepath>, <name>, <timestamp>);
 } catch (e) {
     console.log(e);
+}
+```
+
+### Enums
+```typescript
+export enum PublisherProtocol {
+  RTMP,
+  RTSP_UDP,
+  RTSP_TCP,
+}
+
+export enum PublishingState {
+  Normal = 'Normal',
+  RequestPublish = 'RequestPublish',
+  Publishing = 'Publishing',
+  RequestStopPublish = 'RequestStopPublish',
 }
 ```
 
