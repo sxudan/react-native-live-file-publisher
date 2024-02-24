@@ -34,9 +34,11 @@ const { publishingState, publish, stop, log } = useLiveFilePublisher({
 .
 .
 // publish
+/**
 timestamp: '00:00:00'
 filepath: local file path
 name: stream name
+**/
 try {
     publish(<filepath>, <name>, <timestamp>);
 } catch (e) {
