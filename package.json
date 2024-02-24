@@ -1,6 +1,6 @@
 {
   "name": "react-native-live-file-publisher",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "This is a file publisher to publish the video file to RTSP or RTMP server.",
   "main": "lib/commonjs/index",
   "module": "lib/module/index",

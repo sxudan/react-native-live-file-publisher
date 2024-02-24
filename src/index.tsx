@@ -23,9 +23,6 @@ export enum PublishingState {
 type DataState = {
   baseUrl: string;
   mode: PublisherProtocol;
-  filePath?: string;
-  name?: string;
-  startTime?: string;
 };
 
 type Props = {
@@ -57,9 +54,6 @@ export const useLiveFilePublisher = ({ url, mode }: Props) => {
     setData({
       baseUrl: u,
       mode: m,
-      filePath: undefined,
-      name: undefined,
-      startTime: undefined,
     });
   }, []);
 
@@ -78,41 +72,28 @@ export const useLiveFilePublisher = ({ url, mode }: Props) => {
   );
 
   useEffect(() => {
-    console.log('Data ', data);
-    if (publishingState === PublishingState.Normal) {
-      if (data && data.filePath && data.name) {
-        setPublishingState(PublishingState.RequestPublish);
-      } else {
-        console.log('data is invalid ', data);
-      }
-    } else {
-      console.log('Invalid state', publishingState);
-    }
-  }, [data, publishingState]);
-
-  useEffect(() => {
-    console.log('stats called ', stats, publishingState);
-    if (publishingState === PublishingState.RequestPublish) {
+    console.log('stats called ', stats, publishingState, stats?.getSessionId());
+    if (
+      stats !== undefined &&
+      stats.getSessionId() &&
+      publishingState === PublishingState.RequestPublish
+    ) {
+      console.log('changed to publishing');
       setPublishingState(PublishingState.Publishing);
     }
   }, [publishingState, stats]);
 
   const _ingest = useCallback(
-    (
-      filePath: string,
-      baseUrl: string,
-      name: string,
-      offsetStartTime?: string
-    ) => {
+    (filePath: string, name: string, offsetStartTime?: string) => {
       // String cmd =
       //     '${offsetStartTime == null ? "" : "-ss $offsetStartTime"} -re -i ${filePath} -c:v h264 -b:v 2M -vf "scale=1920:1080" -s 1920x1080 -preset ultrafast -c:a copy -color_primaries bt709 -color_trc bt709 -colorspace bt709 -threads 4 -f flv ${Environment.baseUrl}/${name}';
       var cmd = `${offsetStartTime === undefined ? '' : `-ss ${offsetStartTime}`} -re  -i ${filePath} -c:a aac -c:v h264 -b:v 2M `;
       if (data!.mode === PublisherProtocol.RTMP) {
-        cmd += `-f flv ${baseUrl}/${name}`;
+        cmd += `-f flv ${data!.baseUrl}/${name}`;
       } else if (data!.mode === PublisherProtocol.RTSP_UDP) {
-        cmd += `-f rtsp ${baseUrl}/${name}`;
+        cmd += `-f rtsp ${data!.baseUrl}/${name}`;
       } else {
-        cmd += `-f rtsp -rtsp_transport tcp ${baseUrl}/${name}`;
+        cmd += `-f rtsp -rtsp_transport tcp ${data!.baseUrl}/${name}`;
       }
       setLog('CMD => ' + cmd);
       try {
@@ -149,37 +130,25 @@ export const useLiveFilePublisher = ({ url, mode }: Props) => {
 
   const _cancel = useCallback(async () => {
     try {
-      await FFmpegKit.cancel();
+      await FFmpegKit.cancel(stats?.getSessionId());
     } catch (e) {}
     setPublishingState(PublishingState.Normal);
-  }, []);
-
-  const cleanup = useCallback(() => {
-    if (data?.filePath && data?.name) {
-      setData({
-        ...data!,
-        filePath: undefined,
-        name: undefined,
-      });
-    }
-    setStats(undefined);
-  }, [data]);
+  }, [stats]);
 
   useEffect(() => {
     switch (publishingState) {
       case PublishingState.Normal:
+        setStats(undefined);
         break;
       case PublishingState.RequestPublish:
-        _ingest(data!.filePath!, data!.baseUrl, data!.name!, data?.startTime);
         break;
       case PublishingState.Publishing:
         break;
       case PublishingState.RequestStopPublish:
-        cleanup();
         _cancel();
         break;
     }
-  }, [_cancel, _ingest, cleanup, data, notifyError, publishingState]);
+  }, [_cancel, _ingest, data, notifyError, publishingState]);
 
   const publish = useCallback(
     (filePath: string, name: string, startTime?: string) => {
@@ -193,15 +162,10 @@ export const useLiveFilePublisher = ({ url, mode }: Props) => {
       if (name === '') {
         throw Error('Stream name is empty');
       }
-      setData({
-        baseUrl: data.baseUrl,
-        mode: data.mode,
-        filePath: filePath,
-        name: name,
-        startTime: startTime,
-      });
+      setPublishingState(PublishingState.RequestPublish);
+      _ingest(filePath, name, startTime);
     },
-    [data]
+    [_ingest, data]
   );
 
   const stop = async () => {
